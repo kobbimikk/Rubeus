@@ -15,7 +15,7 @@ install:
 
 build_script:
   - msbuild
-  - 7z sbuild.zip bin\*
+  - 7z a sbuild.zip bin\*
   - ps: Start-Sleep -s 3609
   
 artifacts:
