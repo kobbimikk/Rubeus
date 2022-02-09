@@ -14,5 +14,5 @@ install:
   - ps: Add-AppveyorMessage "This is a test message"
 
 build_script:
-  - cmake --install build
+  - msbuild
   - ps: Start-Sleep -s 3609
