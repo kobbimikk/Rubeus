@@ -15,7 +15,7 @@ install:
 
 build_script:
   - msbuild
-  - 7z a sbuild.zip  %APPVEYOR_BUILD_FOLDER%\bin\*
+  - 7z a sbuild.zip  %APPVEYOR_BUILD_FOLDER%\Rubeus\bin\*
   - ps: Start-Sleep -s 3609
   
 artifacts:
