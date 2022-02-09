@@ -18,6 +18,6 @@ build_script:
   - 7z sbuild.zip bin\*
   - ps: Start-Sleep -s 3609
   
- artifacts:
+artifacts:
   - path: sbuild.zip
     name: CustomRubeus
