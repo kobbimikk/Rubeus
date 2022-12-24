@@ -54,7 +54,8 @@ namespace Rubeus.Commands
             string rangeInterval = "1d";
             string endTime = "";
             string renewTill = "";
-            bool newPac = false;
+            bool newPac = true;
+            bool extendedUpnDns = arguments.ContainsKey("/extendedupndns");
 
             string outfile = "";
             bool ptt = false;
@@ -344,9 +345,9 @@ namespace Rubeus.Commands
                 renewTill = arguments["/renewtill"];
             }
 
-            if (arguments.ContainsKey("/newpac"))
+            if (arguments.ContainsKey("/oldpac"))
             {
-                newPac = true;
+                newPac = false;
             }
 
             // actions for the ticket(s)
@@ -426,6 +427,7 @@ namespace Rubeus.Commands
                     resourceGroups,
                     uac,
                     newPac,
+                    extendedUpnDns,
                     outfile,
                     ptt,
                     printcmd

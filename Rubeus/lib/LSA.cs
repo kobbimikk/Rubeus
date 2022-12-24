@@ -234,7 +234,7 @@ namespace Rubeus
             //      and finally uses LsaCallAuthenticationPackage w/ a KerbRetrieveEncodedTicketMessage message type
             //      to extract the Kerberos ticket data in .kirbi format (service tickets and TGTs)
 
-            //  For elevated enumeration, the code first uses LsaConnectUntrusted() to connect and LsaCallAuthenticationPackage w/ a KerbQueryTicketCacheMessage message type
+            //  For non-elevated enumeration, the code first uses LsaConnectUntrusted() to connect and LsaCallAuthenticationPackage w/ a KerbQueryTicketCacheMessage message type
             //      to enumerate all cached tickets, then uses LsaCallAuthenticationPackage w/ a KerbRetrieveEncodedTicketMessage message type
             //      to extract the Kerberos ticket data in .kirbi format (service tickets and TGTs)
 
@@ -664,12 +664,17 @@ namespace Rubeus
                             Console.WriteLine("{0}  UpnDns                 :", indent);
                             Console.WriteLine("{0}    DNS Domain Name      : {1}", indent, upnDns.DnsDomainName);
                             Console.WriteLine("{0}    UPN                  : {1}", indent, upnDns.Upn);
-                            Console.WriteLine("{0}    Flags                : {1}", indent, upnDns.Flags);
+                            Console.WriteLine("{0}    Flags                : ({1}) {2}", indent, (int)upnDns.Flags, upnDns.Flags);
+                            if (upnDns.Flags.HasFlag(Interop.UpnDnsFlags.EXTENDED))
+                            {
+                                Console.WriteLine("{0}    SamName              : {1}", indent, upnDns.SamName);
+                                Console.WriteLine("{0}    Sid                  : {1}", indent, upnDns.Sid.Value);
+                            }
                         }
                         else if (pacInfoBuffer is SignatureData sigData)
                         {
                             string validation = "VALID";
-                            int i2 = 0;
+                            int i2 = 1;
                             if (sigData.Type == PacInfoBufferType.ServerChecksum && !validated.Item1)
                             {
                                 validation = "INVALID";
@@ -682,15 +687,23 @@ namespace Rubeus
                             {
                                 validation = "INVALID";
                             }
-                            else if ((sigData.Type == PacInfoBufferType.KDCChecksum || sigData.Type == PacInfoBufferType.TicketChecksum) && krbKey == null)
+                            else if (sigData.Type == PacInfoBufferType.FullPacChecksum && krbKey != null && !validated.Item4)
+                            {
+                                validation = "INVALID";
+                            }
+                            else if ((sigData.Type == PacInfoBufferType.KDCChecksum || sigData.Type == PacInfoBufferType.TicketChecksum || sigData.Type == PacInfoBufferType.FullPacChecksum) && krbKey == null)
                             {
                                 validation = "UNVALIDATED";
                             }
                             if (sigData.Type == PacInfoBufferType.KDCChecksum)
                             {
-                                i2 = 3;
+                                i2 = 4;
                             }
-                            Console.WriteLine("{0}  {1}         {2}:", indent, sigData.Type.ToString(), new string(' ', i2));
+                            else if (sigData.Type == PacInfoBufferType.FullPacChecksum)
+                            {
+                                i2 = 0;
+                            }
+                            Console.WriteLine("{0}  {1}        {2}:", indent, sigData.Type.ToString(), new string(' ', i2));
                             Console.WriteLine("{0}    Signature Type       : {1}", indent, sigData.SignatureType);
                             Console.WriteLine("{0}    Signature            : {1} ({2})", indent, Helpers.ByteArrayToString(sigData.Signature), validation);
                         }
